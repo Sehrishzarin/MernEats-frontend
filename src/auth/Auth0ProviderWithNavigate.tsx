@@ -10,8 +10,11 @@ const Auth0ProviderWithNavigate = ({ children }: Props) => {
 
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL;
   const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
+
+  // 🛠️ DYNAMIC FALLBACK: If the Vercel env variable is acting up, this builds the exact matching URL on the fly
+  const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL || 
+    (typeof window !== "undefined" ? `${window.location.origin}/auth-callback` : "");
 
   if (!domain || !clientId || !redirectUri || !audience) {
     throw new Error("unable to initialise auth");
