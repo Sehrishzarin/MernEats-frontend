@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const AuthCallbackPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth0();
-  const { createUser, isLoading, isSuccess } = useCreateMyUser(); // Add isSuccess
+  const { createUser, isSuccess } = useCreateMyUser();
   const hasCreatedUser = useRef(false);
 
   useEffect(() => {
@@ -14,11 +14,11 @@ const AuthCallbackPage = () => {
       createUser({ auth0Id: user.sub, email: user.email });
       hasCreatedUser.current = true;
     }
-  }, [createUser, user]); // Removed navigate from dependencies
+  }, [createUser, user]);
 
   useEffect(() => {
     if (isSuccess) {
-      navigate("/", { replace: true }); // Navigate only on success
+      navigate("/", { replace: true });
     }
   }, [isSuccess, navigate]);
 
