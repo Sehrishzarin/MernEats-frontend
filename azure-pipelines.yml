@@ -4,22 +4,31 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '20.x'
-  displayName: 'Install Node.js'
+jobs:
+# --- BLOCK 1: CONTINUOUS INTEGRATION (CI) ---
+- job: Build
+  displayName: 'CI: Build Application'
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+  - script: |
+      npm install
+      npm run build
+    displayName: 'npm install and build'
 
-# --- The 4-line modification to add CD ---
-- task: AzureRmWebAppDeployment@4
-  displayName: 'Deploy to Azure Web App'
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'azure-web-app-connection'
-    WebAppName: 'mycdpipe'
-    Package: '$(System.DefaultWorkingDirectory)'
+# --- BLOCK 2: CONTINUOUS DELIVERY (CD) ---
+- job: Deploy
+  displayName: 'CD: Deploy to Portal'
+  dependsOn: Build                   
+  condition: succeeded()             
+  steps:
+  - task: AzureRmWebAppDeployment@4
+    displayName: 'Deploy to Azure Web App'
+    inputs:
+      ConnectionType: 'AzureRM'
+      azureSubscription: 'azure-web-app-connection'
+      WebAppName: 'mycdpipe'
+      Package: '$(System.DefaultWorkingDirectory)'
