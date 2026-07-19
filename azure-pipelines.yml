@@ -4,31 +4,37 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-jobs:
-# --- BLOCK 1: CONTINUOUS INTEGRATION (CI) ---
-- job: Build
+stages:
+# --- STAGE 1: CONTINUOUS INTEGRATION (CI) ---
+- stage: CI_Build
   displayName: 'CI: Build Application'
-  steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '20.x'
-    displayName: 'Install Node.js'
+  jobs:
+  - job: RunNpmBuild
+    displayName: 'Compile Node Project'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
 
-  - script: |
-      npm install
-      npm run build
-    displayName: 'npm install and build'
+    - script: |
+        npm install
+        npm run build
+      displayName: 'npm install and build'
 
-# --- BLOCK 2: CONTINUOUS DELIVERY (CD) ---
-- job: Deploy
+# --- STAGE 2: CONTINUOUS DELIVERY (CD) ---
+- stage: CD_Deploy
   displayName: 'CD: Deploy to Portal'
-  dependsOn: Build                   
-  condition: succeeded()             
-  steps:
-  - task: AzureRmWebAppDeployment@4
-    displayName: 'Deploy to Azure Web App'
-    inputs:
-      ConnectionType: 'AzureRM'
-      azureSubscription: 'azure-web-app-connection'
-      WebAppName: 'mycdpipe'
-      Package: '$(System.DefaultWorkingDirectory)'
+  dependsOn: CI_Build           
+  condition: succeeded()          
+  jobs:
+  - job: ExecuteDeploy
+    displayName: 'Push to Azure Web App'
+    steps:
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Deploy to Azure Web App'
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'azure-web-app-connection'
+        WebAppName: 'mycdpipe'
+        Package: '$(System.DefaultWorkingDirectory)'
