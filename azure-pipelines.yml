@@ -22,7 +22,7 @@ stages:
         npm run build
       displayName: 'npm install and build'
 
-    # FIXED: We are now publishing ONLY the compiled 'dist' folder instead of the whole root directory
+    # Target ONLY Vite's output 'dist' folder
     - task: PublishPipelineArtifact@1
       displayName: 'Save Built Files'
       inputs:
@@ -52,3 +52,5 @@ stages:
         azureSubscription: 'AzureRM'
         WebAppName: 'mycdpipe'
         Package: '$(Pipeline.Workspace)/drop'
+        ScriptType: 'inlineScript'
+        InlineScript: 'npx clipanion && pm2 serve /home/site/wwwroot --no-daemon --spa'
