@@ -22,11 +22,11 @@ stages:
         npm run build
       displayName: 'npm install and build'
 
-    # Saves built files so Stage 2 can access them
+    # FIXED: We are now publishing ONLY the compiled 'dist' folder instead of the whole root directory
     - task: PublishPipelineArtifact@1
       displayName: 'Save Built Files'
       inputs:
-        targetPath: '$(System.DefaultWorkingDirectory)'
+        targetPath: '$(System.DefaultWorkingDirectory)/dist'
         artifact: 'build_output'
 
 # --- STAGE 2: CONTINUOUS DELIVERY (CD) ---
@@ -38,7 +38,6 @@ stages:
   - job: ExecuteDeploy
     displayName: 'Push to Azure Web App'
     steps:
-    # Retrieves the files built in Stage 1
     - task: DownloadPipelineArtifact@2
       displayName: 'Retrieve Built Files'
       inputs:
@@ -50,9 +49,6 @@ stages:
       displayName: 'Deploy to Azure Web App'
       inputs:
         ConnectionType: 'AzureRM'
-        # Fixed to match your actual Service Connection Name from the UI
         azureSubscription: 'AzureRM'
-        # Fixed to match your actual App Service name from the portal
         WebAppName: 'mycdpipe'
-        # Pointing to the downloaded location
         Package: '$(Pipeline.Workspace)/drop'
