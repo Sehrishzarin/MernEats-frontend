@@ -22,19 +22,37 @@ stages:
         npm run build
       displayName: 'npm install and build'
 
+    # Saves built files so Stage 2 can access them
+    - task: PublishPipelineArtifact@1
+      displayName: 'Save Built Files'
+      inputs:
+        targetPath: '$(System.DefaultWorkingDirectory)'
+        artifact: 'build_output'
+
 # --- STAGE 2: CONTINUOUS DELIVERY (CD) ---
 - stage: CD_Deploy
   displayName: 'CD: Deploy to Portal'
-  dependsOn: CI_Build           
+  dependsOn: CI_Build            
   condition: succeeded()          
   jobs:
   - job: ExecuteDeploy
     displayName: 'Push to Azure Web App'
     steps:
+    # Retrieves the files built in Stage 1
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Retrieve Built Files'
+      inputs:
+        buildType: 'current'
+        artifactName: 'build_output'
+        targetPath: '$(Pipeline.Workspace)/drop'
+
     - task: AzureRmWebAppDeployment@4
       displayName: 'Deploy to Azure Web App'
       inputs:
         ConnectionType: 'AzureRM'
-        azureSubscription: 'Azure subscription 1'
+        # Fixed to match your actual Service Connection Name from the UI
+        azureSubscription: 'AzureRM'
+        # Fixed to match your actual App Service name from the portal
         WebAppName: 'mycdpipe'
-        Package: '$(System.DefaultWorkingDirectory)'
+        # Pointing to the downloaded location
+        Package: '$(Pipeline.Workspace)/drop'
