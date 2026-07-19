@@ -21,5 +21,5 @@ steps:
   inputs:
     ConnectionType: 'AzureRM'
     azureSubscription: 'azure-web-app-connection'
-    WebAppName: 'YOUR_ACTUAL_AZURE_WEB_APP_NAME'
+    WebAppName: 'mycdpipe'
     Package: '$(System.DefaultWorkingDirectory)'
