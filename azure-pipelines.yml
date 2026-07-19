@@ -35,6 +35,6 @@ stages:
       displayName: 'Deploy to Azure Web App'
       inputs:
         ConnectionType: 'AzureRM'
-        azureSubscription: 'azure-web-app-connection'
+        azureSubscription: 'Azure subscription 1'
         WebAppName: 'mycdpipe'
         Package: '$(System.DefaultWorkingDirectory)'
