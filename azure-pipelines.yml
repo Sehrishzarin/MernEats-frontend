@@ -22,12 +22,6 @@ stages:
         npm install
         npm run build
       displayName: 'npm install and build'
-      env:
-        VITE_AUTH0_DOMAIN: 'dev-2gu3bz0k4hol5cg4.us.auth0.com'
-        VITE_AUTH0_CLIENT_ID: 'cPAePPfmTjC43qgq9rVqsN7dOcKHELB1'
-        VITE_AUTH0_AUDIENCE: 'mern-food-ordering-api'
-        VITE_API_BASE_URL: 'https://merneats-backend-3nqo.onrender.com'
-
     # Inject Express into the build artifact directory for the server routing
     - script: |
         cp server.js dist/
