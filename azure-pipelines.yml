@@ -24,9 +24,9 @@ stages:
             displayName: 'Install Node.js'
           - script: npm ci
             displayName: 'Install dependencies'
-       - script: npm run lint --if-present
+          - script: npm run lint --if-present
             displayName: 'Run linter'
-            continueOnError: true,
+            continueOnError: true
           - script: npm run test -- --run --passWithNoTests
             displayName: 'Run tests'
           - script: npm run build
