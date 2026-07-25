@@ -1,0 +1,37 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  acrName: 'myappacr123'
+  imageName: 'myapp'
+  resourceGroup: 'myapp-rg'
+  aksCluster: 'myapp-aks'
+
+steps:
+  - task: AzureCLI@2
+    displayName: 'Build and push Docker image'
+    inputs:
+      azureSubscription: 'myapp-service-connection'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az acr login --name $(acrName)
+        docker build -t $(acrName).azurecr.io/$(imageName):$(Build.SourceVersion) -t $(acrName).azurecr.io/$(imageName):latest .
+        docker push $(acrName).azurecr.io/$(imageName):$(Build.SourceVersion)
+        docker push $(acrName).azurecr.io/$(imageName):latest
+
+  - task: AzureCLI@2
+    displayName: 'Deploy to AKS'
+    inputs:
+      azureSubscription: 'myapp-service-connection'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        az aks get-credentials --resource-group $(resourceGroup) --name $(aksCluster) --overwrite-existing
+        kubectl set image deployment/myapp myapp=$(acrName).azurecr.io/$(imageName):$(Build.SourceVersion) --record || kubectl apply -f k8s/
+        kubectl rollout status deployment/myapp
