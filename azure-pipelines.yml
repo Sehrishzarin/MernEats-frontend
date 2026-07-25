@@ -4,7 +4,7 @@ trigger:
       - main
 
 variables:
-  acrName: 'myappacr123'
+  acrName: 'myappcr123'
   imageName: 'myapp'
   resourceGroup: 'myapp-rg'
   aksCluster: 'myapp-aks'
